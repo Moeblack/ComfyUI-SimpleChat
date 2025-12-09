@@ -4,6 +4,10 @@ Simple, no-nonsense LLM chat nodes for ComfyUI. Connect to OpenAI, Claude, Gemin
 
 [English](README.md) | [中文](README_CN.md)
 
+![Workflow Example](assets/example-workflow.webp)
+
+[View Example Workflow JSON](assets/SimpleChatExample.json)
+
 ## Features
 
 - **All-in-One Configuration**: Single, powerful config node for all providers.

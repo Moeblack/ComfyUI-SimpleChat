@@ -4,6 +4,10 @@ ComfyUI 的极简 LLM 聊天节点。轻松连接 OpenAI, Claude, Gemini 以及�
 
 [English](README.md) | [中文](README_CN.md)
 
+![工作流示例](assets/example-workflow.webp)
+
+[查看示例工作流 JSON](assets/SimpleChatExample.json)
+
 ## 特性 (Features)
 
 - **一站式配置**: 一个强大的配置节点即可搞定所有提供商。
@@ -17,7 +21,7 @@ ComfyUI 的极简 LLM 聊天节点。轻松连接 OpenAI, Claude, Gemini 以及�
 
 1. 进入您的 `ComfyUI/custom_nodes` 文件夹并克隆本仓库：
 ```bash
-git clone https://github.com/Moeblack/ComfyUI-SimpleChat.git
+git clone https://github.com/yourname/ComfyUI-SimpleChat.git
 ```
 2. 重启 ComfyUI。
 
