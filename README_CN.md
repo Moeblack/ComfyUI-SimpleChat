@@ -21,7 +21,7 @@ ComfyUI 的极简 LLM 聊天节点。轻松连接 OpenAI, Claude, Gemini 以及�
 
 1. 进入您的 `ComfyUI/custom_nodes` 文件夹并克隆本仓库：
 ```bash
-git clone https://github.com/yourname/ComfyUI-SimpleChat.git
+git clone https://github.com/Moeblack/ComfyUI-SimpleChat.git
 ```
 2. 重启 ComfyUI。
 

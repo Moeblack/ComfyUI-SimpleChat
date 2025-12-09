@@ -21,7 +21,7 @@ Simple, no-nonsense LLM chat nodes for ComfyUI. Connect to OpenAI, Claude, Gemin
 
 1. Clone this repository into your `ComfyUI/custom_nodes` folder:
 ```bash
-git clone https://github.com/yourname/ComfyUI-SimpleChat.git
+git clone https://github.com/Moeblack/ComfyUI-SimpleChat.git
 ```
 2. Restart ComfyUI.
 
