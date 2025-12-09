@@ -38,9 +38,12 @@ Everything starts with the **API Config** node.
     *   *Claude*: `sk-ant-...`
     *   *Gemini*: Your Google AI Studio key.
 4.  **Base URL (Optional)**:
-    *   Leave empty for official APIs.
-    *   Enter a custom URL if you use a proxy, a local LLM (like LM Studio/Ollama), or a third-party service.
-    *   *Example*: `https://api.deepseek.com/v1` or `http://localhost:1234/v1`.
+    *   **Strongly recommended to leave empty** unless you are using a proxy or local model.
+    *   The plugin has built-in default official API addresses:
+        *   OpenAI: `https://api.openai.com/v1`
+        *   Claude: `https://api.anthropic.com/v1`
+        *   Gemini: `https://generativelanguage.googleapis.com/v1beta`
+    *   If you use a proxy service (like DeepSeek, OneAPI, etc.), you usually need to fill in the full path including `/v1`, e.g., `https://api.deepseek.com/v1`.
 5.  **Select Model**:
     *   **Click the "Refresh Models" button**.
     *   The node will connect to the API and fetch the *real-time list* of models you can use.

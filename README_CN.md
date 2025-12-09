@@ -38,9 +38,12 @@ git clone https://github.com/Moeblack/ComfyUI-SimpleChat.git
     *   *Claude*: `sk-ant-...`
     *   *Gemini*: 您的 Google AI Studio key。
 4.  **Base URL (可选)**:
-    *   使用官方 API 时请留空。
-    *   如果您使用代理、中转或本地 LLM，请在此输入 URL。
-    *   *例如*: `https://api.deepseek.com/v1` 或 `http://localhost:1234/v1`。
+    *   **强烈建议留空**，除非您使用代理或本地模型。
+    *   插件内置了默认的官方 API 地址：
+        *   OpenAI: `https://api.openai.com/v1`
+        *   Claude: `https://api.anthropic.com/v1`
+        *   Gemini: `https://generativelanguage.googleapis.com/v1beta`
+    *   如果您使用中转服务（如 DeepSeek, OneAPI 等），通常需要填写包含 `/v1` 的完整路径，例如 `https://api.deepseek.com/v1`。
 5.  **选择模型 (Select Model)**:
     *   **点击 "Refresh Models" 按钮**。
     *   节点会连接 API 并获取您当前可用的**实时模型列表**。
