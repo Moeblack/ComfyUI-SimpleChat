@@ -11,6 +11,7 @@ from ..core import (
     build_full_history,
     get_stop_sequences,
 )
+from ..core.template import render_mustache
 
 
 class SimpleChatNoASS:
@@ -39,6 +40,7 @@ class SimpleChatNoASS:
                     "placeholder": "Force the start of the assistant's response (Prefill)."
                 }),
                 "history": ("STRING", {"multiline": True, "default": "", "forceInput": True}),
+                "vars": ("SIMPLECHAT_VARS",),
                 "image": ("IMAGE",),
                 "user_name": ("STRING", {"default": "User"}),
                 "char_name": ("STRING", {"default": "Assistant"}),
@@ -60,12 +62,20 @@ class SimpleChatNoASS:
         user_action: str,
         prefill_start: str = "",
         history: str = "",
+        vars=None,
         image: torch.Tensor = None,
         user_name: str = "User",
         char_name: str = "Assistant",
         temperature: float = 1.0,
         max_tokens: int = 2048,
     ):
+        # Template rendering ({{var}}) for scenario/user/prefill
+        scenario_instructions = render_mustache(scenario_instructions, vars)
+        user_action = render_mustache(user_action, vars)
+        prefill_start = render_mustache(prefill_start, vars)
+        user_name = render_mustache(user_name, vars)
+        char_name = render_mustache(char_name, vars)
+
         # Format in NoASS style
         system_prompt, prefilled = format_noass_prompt(
             system=scenario_instructions,

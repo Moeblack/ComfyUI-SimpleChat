@@ -1,0 +1,71 @@
+name: Publish Wiki
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "docs/wiki/**"
+      - ".github/workflows/publish-wiki.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync docs/wiki -> GitHub Wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ ! -d "docs/wiki" ]; then
+            echo "::error::docs/wiki does not exist"
+            exit 1
+          fi
+
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+          wiki_repo="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
+
+          rm -rf wiki
+          if ! git ls-remote "$wiki_repo" > /dev/null 2>&1; then
+            echo "::error::Unable to access wiki repo. Ensure Wiki is enabled in repository Settings -> Features -> Wiki."
+            exit 1
+          fi
+
+          mkdir -p wiki
+          cd wiki
+          git init
+          git remote add origin "$wiki_repo"
+          git fetch origin || true
+
+          if git show-ref --quiet refs/remotes/origin/master; then
+            git checkout -B master origin/master
+          elif git show-ref --quiet refs/remotes/origin/main; then
+            git checkout -B main origin/main
+          else
+            git checkout -B master
+          fi
+          cd ..
+
+          rsync -av --delete --exclude ".git" docs/wiki/ wiki/
+
+          cd wiki
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No wiki changes to publish."
+            exit 0
+          fi
+
+          git commit -m "Sync wiki from docs/wiki (${GITHUB_SHA})"
+          git push origin HEAD
+

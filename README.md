@@ -16,6 +16,15 @@ Simple, no-nonsense LLM chat nodes for ComfyUI. Connect to OpenAI, Claude, Gemin
 - **Multimodal Support**: Chat with images using vision-capable models.
 - **NoASS Roleplay Mode (Exp)**: Experimental Hardcore roleplay node with Assistant Prefill support.
 - **Gemini Native Features**: Dedicated nodes for Gemini's image generation and editing capabilities.
+- **Template Variables (Mustache)**: Write `{{var}}` in any prompt/system field and inject values via a node.
+- **JSON Field Extractor**: Parse JSON and split values into multiple outputs (fixed 8 ports).
+- **Markdown Preview**: Render markdown output in a safe, sanitized popup.
+
+## Wiki (GitHub Native)
+
+- **Wiki Home**: `https://github.com/Moeblack/ComfyUI-SimpleChat/wiki`
+- **Source of truth**: `docs/wiki/` (auto-published by GitHub Actions)
+- **Note**: Ensure Wiki is enabled in your repo Settings -> Features -> Wiki
 
 ## Installation
 
@@ -56,6 +65,7 @@ Use this for standard text generation or Q&A.
 *   **Connection**: Connect `config` from **API Config** to `config` on **Chat**.
 *   **Input**: Enter your prompt in `text`.
 *   **Output**: Returns the AI's response as a string.
+*   **Template vars (optional)**: Connect `Mustache Var` output `vars` to `Chat` input `vars`, then you can use `{{var}}` in `prompt/system` and it will be replaced.
 
 ### 3. Chat with Images
 Use this to have the AI analyze or describe an image.
@@ -88,6 +98,43 @@ Modify existing images using text instructions.
 
 *   **Node**: `Gemini Image Edit`
 *   **Input**: Source image + Mask image + Prompt.
+
+### 7. JSON Parse
+Parse an LLM-produced JSON string and extract up to 8 fields.
+
+*   **Node**: `JSON Parse`
+*   **Inputs**:
+    *   `json_text`: JSON string (can auto-extract from ```json ... ``` fences)
+    *   `path1..path8`: dot/bracket paths like `a.b.c` or `items[0].name`
+*   **Outputs**: `out1..out8` + `obj` (the full parsed object)
+
+### 7.1 Prompt JSON Unpack (recommended)
+If your LLM outputs a fixed JSON schema (positive/negative/width/height/steps/cfg/sampler/seed/notes), use this node to unpack everything with **proper typed outputs** (INT/FLOAT/SAMPLER) so you can wire directly into ComfyUI nodes without manual paths or casting.
+
+*   **Node**: `Prompt JSON Unpack`
+*   **Input**: `json_text` (can auto-extract from ```json ... ``` fences)
+*   **Outputs**:
+    *   `positive` / `negative` (STRING)
+    *   `width` / `height` / `steps` / `seed` (INT)
+    *   `cfg` (FLOAT)
+    *   `sampler` (SAMPLER)
+    *   `notes` (STRING)
+    *   `vars` (SIMPLECHAT_VARS mapping for Mustache: `{{positive}}`, `{{width}}`, etc.)
+
+### 8. Markdown Preview
+Preview markdown content in a popup (sanitized).
+
+*   **Node**: `Markdown Preview`
+*   **Usage**: Connect any text output to `text`, execute to open the preview popup.
+
+### 9. Anima prompt template (docs)
+If you use SimpleChat to have an LLM generate Anima prompts, see:
+
+*   `docs/anima_prompt.md`
+*   `docs/anima_scheme.md` (JSON fields + built-in Mustache vars scheme)
+
+(Optional) Example workflow:
+*   `assets/AnimaPromptScheme.json`
 
 ## FAQ
 

@@ -3,6 +3,7 @@ Gemini Image Edit node - Edit images using Gemini.
 """
 import torch
 from ..core import get_provider, ChatConfig
+from ..core.template import render_mustache
 
 
 class GeminiImageEdit:
@@ -17,6 +18,7 @@ class GeminiImageEdit:
                 "prompt": ("STRING", {"multiline": True, "default": ""}),
             },
             "optional": {
+                "vars": ("SIMPLECHAT_VARS",),
                 "size": (["1K", "2K", "4K"], {"default": "1K"}),
             }
         }
@@ -32,8 +34,12 @@ class GeminiImageEdit:
         config: ChatConfig,
         image: torch.Tensor,
         prompt: str,
+        vars=None,
         size: str = "1K",
     ):
+        # Template rendering ({{var}}) for prompt
+        prompt = render_mustache(prompt, vars)
+
         # Validate provider
         if config.provider != "gemini":
             raise ValueError("Gemini Image Edit requires Gemini provider. Please use a Gemini config.")

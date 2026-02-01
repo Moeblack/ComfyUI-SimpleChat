@@ -2,6 +2,7 @@
 Chat node - Basic text conversation.
 """
 from ..core import get_provider, ChatConfig
+from ..core.template import render_mustache
 
 
 class SimpleChatText:
@@ -16,6 +17,7 @@ class SimpleChatText:
             },
             "optional": {
                 "system": ("STRING", {"multiline": True, "default": ""}),
+                "vars": ("SIMPLECHAT_VARS",),
                 "temperature": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.1}),
                 "max_tokens": ("INT", {"default": 2048, "min": 1, "max": 128000}),
             }
@@ -32,9 +34,14 @@ class SimpleChatText:
         config: ChatConfig,
         prompt: str,
         system: str = "",
+        vars=None,
         temperature: float = 1.0,
         max_tokens: int = 2048,
     ):
+        # Template rendering ({{var}}) for prompt/system
+        prompt = render_mustache(prompt, vars)
+        system = render_mustache(system, vars)
+
         # Build messages
         messages = []
         if system.strip():

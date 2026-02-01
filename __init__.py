@@ -11,6 +11,12 @@ from .nodes import (
     SimpleChatNoASS,
     GeminiImageGen,
     GeminiImageEdit,
+    SimpleChatMustacheVar,
+    SimpleChatMustacheRender,
+    SimpleChatTextInput,
+    SimpleChatJsonParse,
+    SimpleChatMarkdownPreview,
+    SimpleChatPromptJsonUnpack,
 )
 
 # Register API routes
@@ -25,6 +31,12 @@ NODE_CLASS_MAPPINGS = {
     "SimpleChatNoASS": SimpleChatNoASS,
     "GeminiImageGen": GeminiImageGen,
     "GeminiImageEdit": GeminiImageEdit,
+    "SimpleChatMustacheVar": SimpleChatMustacheVar,
+    "SimpleChatMustacheRender": SimpleChatMustacheRender,
+    "SimpleChatTextInput": SimpleChatTextInput,
+    "SimpleChatJsonParse": SimpleChatJsonParse,
+    "SimpleChatMarkdownPreview": SimpleChatMarkdownPreview,
+    "SimpleChatPromptJsonUnpack": SimpleChatPromptJsonUnpack,
 }
 
 # Display names for the UI
@@ -35,6 +47,12 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "SimpleChatNoASS": "Chat NoASS",
     "GeminiImageGen": "Gemini Image Gen",
     "GeminiImageEdit": "Gemini Image Edit",
+    "SimpleChatMustacheVar": "Mustache Var",
+    "SimpleChatMustacheRender": "Mustache Render",
+    "SimpleChatTextInput": "Text Input",
+    "SimpleChatJsonParse": "JSON Parse",
+    "SimpleChatMarkdownPreview": "Markdown Preview",
+    "SimpleChatPromptJsonUnpack": "Prompt JSON Unpack",
 }
 
 # Expose web directory for JS extensions

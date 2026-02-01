@@ -1,0 +1,319 @@
+{
+  "id": "a6f6a4f0-9e1a-4c34-bcf9-8b2d9bb78c2a",
+  "revision": 0,
+  "last_node_id": 6,
+  "last_link_id": 5,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "SimpleChatConfig",
+      "pos": [
+        -1248.0,
+        360.0
+      ],
+      "size": [
+        270,
+        178
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "config",
+          "type": "SIMPLECHAT_CONFIG",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "Moeblack/ComfyUI-SimpleChat",
+        "Node name for S&R": "SimpleChatConfig"
+      },
+      "widgets_values": [
+        "openai",
+        "",
+        "",
+        "refresh",
+        ""
+      ]
+    },
+    {
+      "id": 2,
+      "type": "SimpleChatText",
+      "pos": [
+        -820.0,
+        360.0
+      ],
+      "size": [
+        430,
+        240
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "config",
+          "type": "SIMPLECHAT_CONFIG",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "Moeblack/ComfyUI-SimpleChat",
+        "Node name for S&R": "SimpleChatText"
+      },
+      "widgets_values": [
+        "在这里写你的绘画需求（建议包含：人数/角色外观/构图/光照/背景/画风/安全标签/画师@）：\n\n示例：\n1girl, black long hair, red eyes, black trench coat, holding umbrella, rainy night neon street, cel shading + slight painterly, half body, cold mood. safe. artist ref: @xxx",
+        "你是“Anima（circlestone-labs/Anima）专用提示词工程师”，目标是在 ComfyUI 里用 Anima 生成高质量二次元/插画向图像（非写实、非摄影）。\n\n### 模型规则（必须遵守）\n1) 你必须输出“可直接粘贴到 ComfyUI”的提示词与参数建议（通过 JSON 字段给出）。\n2) Anima 支持 Danbooru 风格 tags + 自然语言混合输入；输出时以 tags 为主，自然语言必须至少 2 句（多人/复杂构图时更要写清楚）。\n3) Anima 标签顺序固定为：\n   [质量/元数据/年份/安全标签] [人物数量] [角色名] [作品名] [画师] [一般描述标签]\n4) 画师标签必须以 @ 开头（例如 @xxx），否则影响很弱。\n5) 默认生成参数（可按用户需求微调）：\n   - 分辨率：约 1MP（如 1024x1024 / 896x1152 / 1152x896）\n   - Steps：30–50\n   - CFG：4–5\n   - Sampler：优先 er_sde；也可 euler_a；想更“发散/创意”可 dpmpp_2m_sde_gpu\n6) 安全标签必须明确：safe / sensitive / nsfw / explicit；并在 negative 里加入相反约束（例如 positive 里是 safe，则 negative 要包含 nsfw, explicit）。\n7) 不要追求写实：避免 photo, realistic, 真实摄影、皮肤毛孔等措辞；应强调 illustration, anime style, painterly, lineart 等。\n8) 若用户想要非二次元风格：positive 第一行写 dataset tag（ye-pop 或 deviantart），换行后再给标题/描述，再给正常标签行。\n\n### 输出格式（必须是 JSON，且不要夹带额外解释文字）\n输出一个 JSON 对象，键固定如下：\n{\n  \"positive\": \"...\",\n  \"negative\": \"...\",\n  \"width\": 1024,\n  \"height\": 1024,\n  \"steps\": 40,\n  \"cfg\": 4.5,\n  \"sampler\": \"er_sde\",\n  \"seed\": -1,\n  \"notes\": \"1-3条简短技巧/提醒\"\n}\n\n### notes 里要写的技巧（1-3 条，短句）\n- 用年份/时期控制画风：year 2025 / newest / recent / mid / early / old\n- 用质量标签：masterpiece / best quality 或 score_9..score_1（可混用）\n- 角色外观要说清：发色发型、眼睛、服装、表情、姿态、镜头、光照、背景元素\n- 多人时逐个描述，避免只堆角色名\n- Tag dropout 存在：不必塞满所有标签，但关键标签必须有\n\n现在开始：根据用户输入生成 Anima 提示词 JSON。",
+        1,
+        2048
+      ]
+    },
+    {
+      "id": 3,
+      "type": "SimpleChatPromptJsonUnpack",
+      "pos": [
+        -330.0,
+        360.0
+      ],
+      "size": [
+        420,
+        300
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "json_text",
+          "type": "STRING",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "STRING",
+          "links": [
+            3
+          ]
+        },
+        {
+          "name": "negative",
+          "type": "STRING",
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "steps",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "cfg",
+          "type": "FLOAT",
+          "links": null
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "links": null
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "notes",
+          "type": "STRING",
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "vars",
+          "type": "SIMPLECHAT_VARS",
+          "links": null
+        },
+        {
+          "name": "obj",
+          "type": "SIMPLECHAT_JSON",
+          "links": null
+        },
+        {
+          "name": "sampler_name",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "aux_id": "Moeblack/ComfyUI-SimpleChat",
+        "Node name for S&R": "SimpleChatPromptJsonUnpack"
+      },
+      "widgets_values": [
+        "",
+        true
+      ]
+    },
+    {
+      "id": 4,
+      "type": "PreviewAny",
+      "pos": [
+        160.0,
+        240.0
+      ],
+      "size": [
+        300,
+        230
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 3
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 5,
+      "type": "PreviewAny",
+      "pos": [
+        160.0,
+        500.0
+      ],
+      "size": [
+        300,
+        230
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 4
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 6,
+      "type": "SimpleChatMarkdownPreview",
+      "pos": [
+        160.0,
+        770.0
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 5
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "aux_id": "Moeblack/ComfyUI-SimpleChat",
+        "Node name for S&R": "SimpleChatMarkdownPreview"
+      },
+      "widgets_values": [
+        ""
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "SIMPLECHAT_CONFIG"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "STRING"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "*"
+    ],
+    [
+      4,
+      3,
+      1,
+      5,
+      0,
+      "*"
+    ],
+    [
+      5,
+      3,
+      8,
+      6,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "workflowRendererVersion": "LG",
+    "frontendVersion": "1.33.10"
+  },
+  "version": 0.4
+}
+

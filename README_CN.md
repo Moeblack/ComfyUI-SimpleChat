@@ -16,6 +16,15 @@ ComfyUI 的极简 LLM 聊天节点。轻松连接 OpenAI, Claude, Gemini 以及�
 - **多模态支持**: 使用具备视觉能力的模型与图片进行对话。
 - **NoASS 角色扮演模式 (实验性)**: 专为硬核角色扮演设计的节点，支持 Assistant Prefill (预填) 技术。
 - **Gemini 原生功能**: 专为 Gemini 设计的文生图和图片编辑节点。
+- **模板变量 (Mustache)**: 在 prompt/system 等任意文本里写 `{{变量名}}`，通过节点统一注入替换。
+- **JSON 解析拆字段**: 将 JSON 自动解析并按 path 输出到多个端口（固定 8 路）。
+- **Markdown 渲染预览**: 将文本以 Markdown 方式弹窗渲染展示（已做净化，避免脚本注入）。
+
+## Wiki（GitHub 原生）
+
+- **Wiki 首页**：`https://github.com/Moeblack/ComfyUI-SimpleChat/wiki`
+- **仓库内维护源**：`docs/wiki/`（由 GitHub Actions 自动同步发布）
+- **注意**：需要在 GitHub 仓库 Settings -> Features -> 勾选 Wiki
 
 ## 安装 (Installation)
 
@@ -56,6 +65,7 @@ git clone https://github.com/Moeblack/ComfyUI-SimpleChat.git
 *   **连接**: 将 **API Config** 的 `config` 输出连接到 **Chat** 的 `config` 输入。
 *   **输入**: 在 `text` 中输入您的提示词。
 *   **输出**: 返回 AI 的回复字符串。
+*   **模板变量（可选）**: 将 `Mustache Var` 的 `vars` 输出接到 `Chat` 的 `vars` 输入后，`prompt/system` 中支持写 `{{变量名}}` 并自动替换。
 
 ### 3. 图片对话 (Chat with Images)
 让 AI 分析或描述图片。
@@ -88,6 +98,43 @@ git clone https://github.com/Moeblack/ComfyUI-SimpleChat.git
 
 *   **节点**: `Gemini Image Edit`
 *   **输入**: 原图 (Source image) + 遮罩 (Mask image) + 提示词 (Prompt)。
+
+### 7. JSON 解析拆字段 (JSON Parse)
+把 LLM 输出的 JSON 自动解析成多个字段，便于接入后续节点。
+
+*   **节点**: `JSON Parse`
+*   **输入**:
+    *   `json_text`: JSON 字符串（支持从 ```json ... ``` 代码块中自动提取）
+    *   `path1..path8`: 取值路径（支持 `a.b.c` 与 `items[0].name`）
+*   **输出**: `out1..out8` + `obj`（完整解析后的对象）
+
+### 7.1 Prompt JSON 拆包（强烈推荐）
+如果你的 LLM 输出遵循固定 JSON 格式（positive/negative/width/height/steps/cfg/sampler/seed/notes），推荐用这个节点“一键拆包”，并且 **width/height/steps/cfg/seed/sampler 都是带类型输出**，可直接接到 ComfyUI 的对应输入口（不用手动填 path，也不用字符串转数字）。
+
+*   **节点**: `Prompt JSON Unpack`
+*   **输入**: `json_text`（支持从 ```json ... ``` 代码块中自动提取）
+*   **输出**:
+    *   `positive` / `negative`（STRING）
+    *   `width` / `height` / `steps` / `seed`（INT）
+    *   `cfg`（FLOAT）
+    *   `sampler`（SAMPLER）
+    *   `notes`（STRING）
+    *   `vars`（SIMPLECHAT_VARS：自动把这些字段映射成 `{{positive}}`/`{{width}}` 等胡子变量，另含中文别名）
+
+### 8. Markdown 渲染预览 (Markdown Preview)
+把文本以 Markdown 渲染的方式展示（弹窗），适合预览 LLM 的结构化输出/说明文档。
+
+*   **节点**: `Markdown Preview`
+*   **用法**: 把任意文本输出接到 `text`，执行后自动弹窗渲染。
+
+### 9. Anima 提示词模板（文档）
+如果你用 SimpleChat 让 LLM 帮你写 Anima 的提示词，推荐直接用这份 System Prompt：
+
+*   `docs/anima_prompt.md`
+*   `docs/anima_scheme.md`（JSON 字段 + 内置胡子变量命名方案）
+
+（可选）示例工作流：
+*   `assets/AnimaPromptScheme.json`
 
 ## 常见问题 (FAQ)
 

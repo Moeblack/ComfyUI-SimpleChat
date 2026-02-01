@@ -3,6 +3,7 @@ Gemini Image Gen node - Text-to-image generation with Gemini.
 """
 import torch
 from ..core import get_provider, ChatConfig
+from ..core.template import render_mustache
 
 
 class GeminiImageGen:
@@ -16,6 +17,7 @@ class GeminiImageGen:
                 "prompt": ("STRING", {"multiline": True, "default": ""}),
             },
             "optional": {
+                "vars": ("SIMPLECHAT_VARS",),
                 "aspect_ratio": (["1:1", "16:9", "9:16", "4:3", "3:4", "5:4", "4:5"], {"default": "1:1"}),
                 "size": (["1K", "2K", "4K"], {"default": "1K"}),
             }
@@ -31,9 +33,13 @@ class GeminiImageGen:
         self,
         config: ChatConfig,
         prompt: str,
+        vars=None,
         aspect_ratio: str = "1:1",
         size: str = "1K",
     ):
+        # Template rendering ({{var}}) for prompt
+        prompt = render_mustache(prompt, vars)
+
         # Validate provider
         if config.provider != "gemini":
             raise ValueError("Gemini Image Gen requires Gemini provider. Please use a Gemini config.")
