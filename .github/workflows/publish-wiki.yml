@@ -38,7 +38,7 @@ jobs:
 
           rm -rf wiki
           if ! git ls-remote "$wiki_repo" > /dev/null 2>&1; then
-            echo "::error::Unable to access wiki repo. Ensure Wiki is enabled in repository Settings -> Features -> Wiki."
+            echo "::error::Unable to access wiki repo. Ensure Wiki is enabled AND the first wiki page has been created (Wiki -> Create the first page)."
             exit 1
           fi
 

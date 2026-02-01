@@ -9,7 +9,18 @@
 进入 GitHub 仓库：
 - Settings -> Features -> 勾选 **Wiki**
 
-若未启用，Actions 会在克隆 `${repo}.wiki.git` 时失败。
+若未启用，Actions 会在访问 `${repo}.wiki.git` 时失败。
+
+### 1.1) 首次初始化（非常重要）
+
+GitHub 的 Wiki git 仓库（`${repo}.wiki.git`）通常需要**先创建第一篇 Wiki 页面**才会真正生成。
+
+做法：
+- 打开仓库的 Wiki：`https://github.com/<owner>/<repo>/wiki`
+- 点击 **Create the first page**
+- 保存（即使只写一行也可以）
+
+完成后，再触发一次同步（重新 push，或手动运行 `Publish Wiki` 工作流）即可。
 
 ---
 
