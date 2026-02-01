@@ -99,6 +99,21 @@ def _as_str(value: Any, default: str = "") -> str:
         return str(value)
 
 
+def _clean_piece(text: str) -> str:
+    if not isinstance(text, str):
+        return ""
+    s = text.strip()
+    # trim common trailing separators so joining doesn't create ", ,"
+    s = s.rstrip(",，")
+    return s.strip()
+
+
+def _join_pieces(*pieces: str) -> str:
+    cleaned = [_clean_piece(p) for p in pieces]
+    cleaned = [p for p in cleaned if p]
+    return ", ".join(cleaned)
+
+
 _SAMPLER_ALIASES = {
     # community shorthand -> ComfyUI names
     "euler_a": "euler_ancestral",
@@ -171,8 +186,23 @@ class SimpleChatPromptJsonUnpack:
         if not isinstance(data, dict):
             raise ValueError("Expected a JSON object (dict) at top-level.")
 
+        # Core fields
         positive = _as_str(data.get("positive", ""), "")
-        negative = _as_str(data.get("negative", ""), "")
+        negative = _as_str(data.get("negative", data.get("neg", "")), "")
+
+        # Optional "parts" schema (for Mustache templating / UI editing)
+        # If `positive` is missing, build it from parts in Anima tag order:
+        # [quality/meta/year/safety] [count] [character] [series] [artist] [style] [tags]
+        if not positive.strip():
+            positive = _join_pieces(
+                _as_str(data.get("quality_meta_year_safe", ""), ""),
+                _as_str(data.get("count", ""), ""),
+                _as_str(data.get("character", ""), ""),
+                _as_str(data.get("series", ""), ""),
+                _as_str(data.get("artist", ""), ""),
+                _as_str(data.get("style", ""), ""),
+                _as_str(data.get("tags", ""), ""),
+            )
 
         width = _as_int(data.get("width"), 1024)
         height = _as_int(data.get("height"), 1024)
@@ -225,6 +255,27 @@ class SimpleChatPromptJsonUnpack:
             "anima.种子": seed,
             "anima.备注": notes,
         }
+
+        # Also expose any extra top-level JSON keys as Mustache vars (backward compatible):
+        # - Enables schemas like { "quality_meta_year_safe": "...", ... } without changing nodes.
+        for k, v in data.items():
+            if not isinstance(k, str) or not k:
+                continue
+            if k in vars_dict:
+                continue
+            if k.startswith("anima."):
+                # Avoid clobbering prefixed keys we already manage.
+                continue
+
+            # Keep scalars as-is; stringify everything else (lists/objects).
+            if v is None or isinstance(v, (str, int, float, bool)):
+                vars_dict[k] = "" if v is None else v
+            else:
+                vars_dict[k] = _as_str(v, "")
+
+            prefixed = f"anima.{k}"
+            if prefixed not in vars_dict:
+                vars_dict[prefixed] = vars_dict[k]
 
         # Build an actual sampler object for SAMPLER output (for custom-sampling graphs)
         import comfy.samplers
