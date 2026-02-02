@@ -22,6 +22,7 @@ from typing import Any, Dict, List, Tuple
 
 
 _CODE_FENCE_RE = re.compile(r"```(?:json)?\s*([\s\S]*?)\s*```", re.IGNORECASE)
+_LINE_COMMENT_RE = re.compile(r"^\s*(//|#).*$", re.MULTILINE)
 
 
 def _strip_code_fence(text: str) -> str:
@@ -31,19 +32,102 @@ def _strip_code_fence(text: str) -> str:
     return m.group(1) if m else text
 
 
+def _extract_first_json_object(text: str) -> str | None:
+    """
+    Extract the first top-level JSON object {...} from a noisy text.
+    Uses brace counting and skips braces inside quoted strings.
+    """
+    if not isinstance(text, str):
+        return None
+    s = text.lstrip("\ufeff").strip()
+    start = s.find("{")
+    if start == -1:
+        return None
+
+    depth = 0
+    in_str: str | None = None
+    esc = False
+    for i in range(start, len(s)):
+        ch = s[i]
+        if in_str is not None:
+            if esc:
+                esc = False
+                continue
+            if ch == "\\":
+                esc = True
+                continue
+            if ch == in_str:
+                in_str = None
+            continue
+
+        if ch == '"' or ch == "'":
+            in_str = ch
+            continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return s[start : i + 1]
+    return None
+
+
+def _repair_missing_commas(text: str) -> str:
+    """
+    Best-effort repair for a common hand-edited JSON mistake:
+    missing commas between top-level lines, e.g.
+      "a": "x"
+      "b": "y"
+    """
+    if not isinstance(text, str):
+        return text
+    s = text
+    # Add comma before a new line starting with a quote when previous line looks like a value.
+    s = re.sub(
+        r'("|\d|\]|\}|true|false|null)\s*\n(\s*")',
+        r"\1,\n\2",
+        s,
+        flags=re.IGNORECASE,
+    )
+    return s
+
+
 def _try_parse_json(text: str) -> Any:
-    try:
-        return json.loads(text)
-    except Exception:
-        cleaned = re.sub(r",\s*([}\]])", r"\1", text)
+    if not isinstance(text, str):
+        return text
+
+    s = text.lstrip("\ufeff")
+    # Strip full-line comments (common when users annotate JSON)
+    s = _LINE_COMMENT_RE.sub("", s).strip()
+
+    candidates: list[str] = [s]
+    extracted = _extract_first_json_object(s)
+    if extracted and extracted != s:
+        candidates.append(extracted)
+
+    last_err: Exception | None = None
+    for cand in candidates:
         try:
-            return json.loads(cleaned)
-        except Exception:
-            a = cleaned.find("{")
-            b = cleaned.rfind("}")
-            if a != -1 and b != -1 and b > a:
-                return json.loads(cleaned[a : b + 1])
-            raise
+            return json.loads(cand)
+        except Exception as e:
+            last_err = e
+            # trailing commas
+            cleaned = re.sub(r",\s*([}\]])", r"\1", cand)
+            cleaned = _repair_missing_commas(cleaned)
+            cleaned = _LINE_COMMENT_RE.sub("", cleaned).strip()
+            try:
+                return json.loads(cleaned)
+            except Exception as e2:
+                last_err = e2
+
+    # Provide a more actionable message
+    if isinstance(last_err, json.JSONDecodeError):
+        msg = (
+            f"JSON 解析失败：{last_err.msg} (line {last_err.lineno}, col {last_err.colno}). "
+            f"常见原因：上一行结尾缺少逗号、或 JSON 里混入了说明文字。"
+        )
+        raise ValueError(msg) from last_err
+    raise last_err if last_err is not None else ValueError("JSON 解析失败：未知错误")
 
 
 def _split_list(text: str) -> List[str]:
