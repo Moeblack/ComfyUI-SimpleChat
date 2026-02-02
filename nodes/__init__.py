@@ -20,6 +20,7 @@ from .anima_prompt_router import SimpleChatAnimaPromptRouter
 from .anima_prompt_xy_matrix import SimpleChatAnimaPromptXYMatrix
 from .image_grid import SimpleChatImageGrid
 from .image_xy_plot import SimpleChatXYPlot
+from .xy_cell_prefix import SimpleChatXYCellPrefix
 
 __all__ = [
     "SimpleChatConfig",
@@ -41,4 +42,5 @@ __all__ = [
     "SimpleChatAnimaPromptXYMatrix",
     "SimpleChatImageGrid",
     "SimpleChatXYPlot",
+    "SimpleChatXYCellPrefix",
 ]

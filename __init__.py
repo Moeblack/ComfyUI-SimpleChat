@@ -24,6 +24,7 @@ from .nodes import (
     SimpleChatImageGrid,
     SimpleChatAnimaPromptXYMatrix,
     SimpleChatXYPlot,
+    SimpleChatXYCellPrefix,
 )
 
 # Register API routes
@@ -51,6 +52,7 @@ NODE_CLASS_MAPPINGS = {
     "SimpleChatImageGrid": SimpleChatImageGrid,
     "SimpleChatAnimaPromptXYMatrix": SimpleChatAnimaPromptXYMatrix,
     "SimpleChatXYPlot": SimpleChatXYPlot,
+    "SimpleChatXYCellPrefix": SimpleChatXYCellPrefix,
 }
 
 # Display names for the UI
@@ -74,6 +76,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "SimpleChatImageGrid": "Image Grid (Batch)",
     "SimpleChatAnimaPromptXYMatrix": "Anima XY Matrix (JSON List)",
     "SimpleChatXYPlot": "XY Plot (Labels)",
+    "SimpleChatXYCellPrefix": "XY Cell Prefix (Batch)",
 }
 
 # Expose web directory for JS extensions

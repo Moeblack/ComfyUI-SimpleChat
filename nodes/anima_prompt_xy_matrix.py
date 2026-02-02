@@ -204,6 +204,14 @@ class SimpleChatAnimaPromptXYMatrix:
                 "pair_join": (["newline", "comma", "space", "custom"], {"default": "newline"}),
                 "custom_join": ("STRING", {"default": "\\n", "tooltip": "Used when pair_join=custom. Use \\n for newline."}),
                 "diagonal_single": ("BOOLEAN", {"default": True, "tooltip": "When X==Y, use single value on diagonal (recommended)."}),
+                # Keep this as the last widget for backward compatibility with older workflows.
+                "matrix_mode": (
+                    ["full", "upper_triangle", "diagonal_only"],
+                    {
+                        "default": "full",
+                        "tooltip": "When x_field==y_field (e.g. artist x artist), choose full matrix or run fewer cells.",
+                    },
+                ),
             }
         }
 
@@ -233,6 +241,7 @@ class SimpleChatAnimaPromptXYMatrix:
         pair_join: str = "newline",
         custom_join: str = "\\n",
         diagonal_single: bool = True,
+        matrix_mode: str = "full",
     ):
         raw = _strip_code_fence(json_text) if strip_code_fence else json_text
         base = _try_parse_json(raw) if isinstance(raw, str) else raw
@@ -311,11 +320,30 @@ class SimpleChatAnimaPromptXYMatrix:
 
             return json.dumps(obj, ensure_ascii=False, indent=2)
 
+        same_axis = (x_key and y_key and x_key == y_key) or (x_field == y_field)
+
         # Row-major (y rows)
         out_list: List[str] = []
-        for yv in ys:
-            for xv in xs:
-                out_list.append(_build_one(xv, yv))
+        if matrix_mode != "full" and same_axis and len(xs) == len(ys):
+            n = len(xs)
+            if matrix_mode == "upper_triangle":
+                for r in range(n):
+                    yv = ys[r]
+                    for c in range(r, n):
+                        xv = xs[c]
+                        out_list.append(_build_one(xv, yv))
+            elif matrix_mode == "diagonal_only":
+                for i in range(n):
+                    out_list.append(_build_one(xs[i], ys[i]))
+            else:
+                # Unknown mode -> fallback
+                for yv in ys:
+                    for xv in xs:
+                        out_list.append(_build_one(xv, yv))
+        else:
+            for yv in ys:
+                for xv in xs:
+                    out_list.append(_build_one(xv, yv))
 
         columns = len(xs)
         x_labels = "\n".join(xs)

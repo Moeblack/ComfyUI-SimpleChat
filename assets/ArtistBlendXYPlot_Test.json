@@ -1,8 +1,8 @@
 {
   "id": "simplechat-artist-blend-xyplot-test",
   "revision": 0,
-  "last_node_id": 13,
-  "last_link_id": 20,
+  "last_node_id": 14,
+  "last_link_id": 23,
   "nodes": [
     {
       "id": 1,
@@ -68,7 +68,8 @@
         "combine",
         "newline",
         "\\n",
-        true
+        true,
+        "upper_triangle"
       ]
     },
     {
@@ -197,11 +198,30 @@
       "order": 9,
       "mode": 0,
       "inputs": [
-        { "name": "images", "type": "IMAGE", "link": 14 }
+        { "name": "images", "type": "IMAGE", "link": 14 },
+        { "name": "filename_prefix", "type": "STRING", "link": 23 }
       ],
       "outputs": [],
       "properties": { "Node name for S&R": "SaveImage" },
       "widgets_values": ["artist_blend_each"]
+    },
+    {
+      "id": 14,
+      "type": "SimpleChatXYCellPrefix",
+      "pos": [1460, 1020],
+      "size": [420, 220],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        { "name": "x_labels", "type": "STRING", "link": 21 },
+        { "name": "y_labels", "type": "STRING", "link": 22 }
+      ],
+      "outputs": [
+        { "name": "filename_prefix", "type": "STRING", "links": [23] }
+      ],
+      "properties": { "aux_id": "Moeblack/ComfyUI-SimpleChat", "Node name for S&R": "SimpleChatXYCellPrefix" },
+      "widgets_values": ["+", true, "", true, "upper_triangle"]
     },
     {
       "id": 10,
@@ -273,7 +293,10 @@
     [17, 3, 3, 10, 3, "STRING"],
     [18, 9, 0, 10, 0, "IMAGE"],
     [19, 10, 0, 11, 0, "IMAGE"],
-    [20, 10, 0, 12, 0, "IMAGE"]
+    [20, 10, 0, 12, 0, "IMAGE"],
+    [21, 3, 2, 14, 0, "STRING"],
+    [22, 3, 3, 14, 1, "STRING"],
+    [23, 14, 0, 13, 1, "STRING"]
   ],
   "groups": [],
   "config": {},
