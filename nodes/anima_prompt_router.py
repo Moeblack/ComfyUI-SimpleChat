@@ -180,23 +180,33 @@ class SimpleChatAnimaPromptRouter:
         override: str,
         default: str = "",
     ) -> str:
-        # 1) Manual override always wins if non-empty (supports active editing)
+        """
+        Resolve one field with the following UX:
+
+        - Unlocked: always follow current JSON (or override), and clear any previous latch.
+        - Locked: freeze the last latched value; first time locking latches the current value.
+        - Manual override always wins; when locked, override also updates the latched value
+          (so you can clear override afterwards and keep the edited value).
+        """
+
         ov = _as_str(override, "").strip()
+
+        # Unlocked: keep updating and forget old latch (so next lock captures the latest)
+        if not lock:
+            self._latched.pop(key, None)
+            return ov or (json_value or "").strip() or default
+
+        # Locked: manual override wins (and becomes the new locked value)
         if ov:
             self._latched[key] = ov
             return ov
 
-        # 2) Latch behavior when locked
-        if lock:
-            if key in self._latched:
-                return self._latched[key]
-            # First time locking: latch current JSON value (or default)
-            cur = (json_value or "").strip() or default
-            self._latched[key] = cur
-            return cur
-
-        # 3) Follow JSON when not locked
-        return (json_value or "").strip() or default
+        # Locked: keep previous latched value; if none, latch current JSON value (or default)
+        if key in self._latched:
+            return self._latched[key]
+        cur = (json_value or "").strip() or default
+        self._latched[key] = cur
+        return cur
 
     def route(
         self,
