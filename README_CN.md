@@ -10,6 +10,7 @@ ComfyUI 的极简 LLM 聊天节点。轻松连接 OpenAI, Claude, Gemini 以及�
   
 - **画师批量测试（网格）示例工作流**：`assets/ArtistBatchTest_Grid.json`
 - **画师×背景 XY Plot（带标签）示例工作流**：`assets/ArtistXYPlot_Test.json`
+- **画师×画师叠加 XY Plot（对角线单画师 / 非对角线为 X+Y）示例工作流**：`assets/ArtistBlendXYPlot_Test.json`
 
 ## 特性 (Features)
 
@@ -168,6 +169,15 @@ git clone https://github.com/Moeblack/ComfyUI-SimpleChat.git
 1) `Anima XY Matrix (JSON List)`：输入 base JSON + X 列表（画师）+ Y 列表（背景/风格等）→ 输出 JSON 列表 + `columns/x_labels/y_labels`
 2) 下游照常跑图（`Prompt JSON Unpack` → CLIP/KSampler → VAE Decode）
 3) `XY Plot (Labels)`：把 batch 图 + `columns/x_labels/y_labels` 输入，输出一张带标签的完整 XY 表格图
+
+#### 9.1 画师×画师叠加（对角线单画师）
+如果你想做“横轴画师、纵轴画师”的叠加测试：
+
+- 把 `x_field` 和 `y_field` 都选 `artist`
+- `y_list` 留空，并勾选 `auto_y_from_x_when_empty`
+- `same_field_behavior` 选 `combine`
+- `pair_join` 选 `newline`（实现你说的“X 换行 Y”）
+- 勾选 `diagonal_single`（对角线单画师）
 
 ### 8. Markdown 渲染预览 (Markdown Preview)
 把文本以 Markdown 渲染的方式展示（弹窗），适合预览 LLM 的结构化输出/说明文档。

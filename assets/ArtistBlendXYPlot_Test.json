@@ -1,0 +1,282 @@
+{
+  "id": "simplechat-artist-blend-xyplot-test",
+  "revision": 0,
+  "last_node_id": 13,
+  "last_link_id": 19,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "CheckpointLoaderSimple",
+      "pos": [-980, 140],
+      "size": [380, 105],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        { "name": "MODEL", "type": "MODEL", "links": [4] },
+        { "name": "CLIP", "type": "CLIP", "links": [1, 2] },
+        { "name": "VAE", "type": "VAE", "links": [5] }
+      ],
+      "properties": { "Node name for S&R": "CheckpointLoaderSimple" },
+      "widgets_values": ["YOUR_CHECKPOINT.safetensors"]
+    },
+    {
+      "id": 2,
+      "type": "SimpleChatTextInput",
+      "pos": [-980, 290],
+      "size": [520, 280],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        { "name": "text", "type": "STRING", "links": [6] }
+      ],
+      "properties": { "aux_id": "Moeblack/ComfyUI-SimpleChat", "Node name for S&R": "SimpleChatTextInput" },
+      "widgets_values": [
+        "{\n  \"quality_meta_year_safe\": \"masterpiece, best quality, year 2025, safe\",\n  \"count\": \"1girl\",\n  \"character\": \"dreamlike girl, soft eyes, gentle smile\",\n  \"series\": \"\",\n  \"artist\": \"@ask\",\n  \"style\": \"anime illustration, soft painterly shading\",\n  \"environment\": \"soft bokeh background, warm indoor light\",\n  \"tags\": \"upper body, looking at viewer\\nA dreamy and tender mood.\",\n  \"neg\": \"worst quality, low quality, blurry, bad anatomy, bad hands, extra fingers, missing fingers, text, watermark, logo, jpeg artifacts, nsfw, explicit\",\n\n  \"positive\": \"\",\n  \"negative\": \"\",\n  \"width\": 1024,\n  \"height\": 1024,\n  \"steps\": 30,\n  \"cfg\": 4.5,\n  \"sampler\": \"euler_ancestral\",\n  \"seed\": 1234,\n  \"notes\": \"\"\n}\n"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "SimpleChatAnimaPromptXYMatrix",
+      "pos": [-400, 290],
+      "size": [560, 420],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        { "name": "json_text", "type": "STRING", "link": 6 }
+      ],
+      "outputs": [
+        { "name": "json_text", "type": "STRING", "links": [7] },
+        { "name": "columns", "type": "INT", "links": [15] },
+        { "name": "x_labels", "type": "STRING", "links": [16] },
+        { "name": "y_labels", "type": "STRING", "links": [17] }
+      ],
+      "properties": { "aux_id": "Moeblack/ComfyUI-SimpleChat", "Node name for S&R": "SimpleChatAnimaPromptXYMatrix" },
+      "widgets_values": [
+        "",
+        true,
+        "artist",
+        "@ask\n@artist_a\n@artist_b\n@artist_c\n",
+        "artist",
+        "",
+        true,
+        true,
+        "combine",
+        "newline",
+        "\\n",
+        true
+      ]
+    },
+    {
+      "id": 4,
+      "type": "SimpleChatPromptJsonUnpack",
+      "pos": [220, 290],
+      "size": [460, 320],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        { "name": "json_text", "type": "STRING", "link": 7 }
+      ],
+      "outputs": [
+        { "name": "positive", "type": "STRING", "links": [8] },
+        { "name": "negative", "type": "STRING", "links": [9] },
+        { "name": "width", "type": "INT", "links": null },
+        { "name": "height", "type": "INT", "links": null },
+        { "name": "steps", "type": "INT", "links": null },
+        { "name": "cfg", "type": "FLOAT", "links": null },
+        { "name": "sampler", "type": "SAMPLER", "links": null },
+        { "name": "seed", "type": "INT", "links": null },
+        { "name": "notes", "type": "STRING", "links": null },
+        { "name": "vars", "type": "SIMPLECHAT_VARS", "links": null },
+        { "name": "obj", "type": "SIMPLECHAT_JSON", "links": null },
+        { "name": "sampler_name", "type": "STRING", "links": null }
+      ],
+      "properties": { "aux_id": "Moeblack/ComfyUI-SimpleChat", "Node name for S&R": "SimpleChatPromptJsonUnpack" },
+      "widgets_values": ["", true]
+    },
+    {
+      "id": 5,
+      "type": "CLIPTextEncode",
+      "pos": [740, 260],
+      "size": [420, 180],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        { "name": "clip", "type": "CLIP", "link": 1 },
+        { "name": "text", "type": "STRING", "link": 8 }
+      ],
+      "outputs": [
+        { "name": "CONDITIONING", "type": "CONDITIONING", "links": [10] }
+      ],
+      "properties": { "Node name for S&R": "CLIPTextEncode" },
+      "widgets_values": []
+    },
+    {
+      "id": 6,
+      "type": "CLIPTextEncode",
+      "pos": [740, 470],
+      "size": [420, 180],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        { "name": "clip", "type": "CLIP", "link": 2 },
+        { "name": "text", "type": "STRING", "link": 9 }
+      ],
+      "outputs": [
+        { "name": "CONDITIONING", "type": "CONDITIONING", "links": [11] }
+      ],
+      "properties": { "Node name for S&R": "CLIPTextEncode" },
+      "widgets_values": []
+    },
+    {
+      "id": 7,
+      "type": "EmptyLatentImage",
+      "pos": [740, 700],
+      "size": [320, 110],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        { "name": "LATENT", "type": "LATENT", "links": [12] }
+      ],
+      "properties": { "Node name for S&R": "EmptyLatentImage" },
+      "widgets_values": [1024, 1024, 1]
+    },
+    {
+      "id": 8,
+      "type": "KSampler",
+      "pos": [1220, 560],
+      "size": [420, 300],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        { "name": "model", "type": "MODEL", "link": 4 },
+        { "name": "positive", "type": "CONDITIONING", "link": 10 },
+        { "name": "negative", "type": "CONDITIONING", "link": 11 },
+        { "name": "latent_image", "type": "LATENT", "link": 12 }
+      ],
+      "outputs": [
+        { "name": "LATENT", "type": "LATENT", "links": [13] }
+      ],
+      "properties": { "Node name for S&R": "KSampler" },
+      "widgets_values": [1234, 30, 4.5, "euler_ancestral", "normal", 1.0]
+    },
+    {
+      "id": 9,
+      "type": "VAEDecode",
+      "pos": [1680, 620],
+      "size": [170, 50],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        { "name": "samples", "type": "LATENT", "link": 13 },
+        { "name": "vae", "type": "VAE", "link": 5 }
+      ],
+      "outputs": [
+        { "name": "IMAGE", "type": "IMAGE", "links": [14, 18] }
+      ],
+      "properties": { "Node name for S&R": "VAEDecode" },
+      "widgets_values": []
+    },
+    {
+      "id": 13,
+      "type": "SaveImage",
+      "pos": [1900, 520],
+      "size": [320, 60],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        { "name": "images", "type": "IMAGE", "link": 14 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "SaveImage" },
+      "widgets_values": ["artist_blend_each"]
+    },
+    {
+      "id": 10,
+      "type": "SimpleChatXYPlot",
+      "pos": [1900, 660],
+      "size": [460, 240],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        { "name": "images", "type": "IMAGE", "link": 18 },
+        { "name": "columns", "type": "INT", "link": 15 },
+        { "name": "x_labels", "type": "STRING", "link": 16 },
+        { "name": "y_labels", "type": "STRING", "link": 17 }
+      ],
+      "outputs": [
+        { "name": "image", "type": "IMAGE", "links": [19] }
+      ],
+      "properties": { "aux_id": "Moeblack/ComfyUI-SimpleChat", "Node name for S&R": "SimpleChatXYPlot" },
+      "widgets_values": [8, 8, "black", "white", "Artist Blend (X + Y)"]
+    },
+    {
+      "id": 11,
+      "type": "PreviewImage",
+      "pos": [2380, 660],
+      "size": [280, 340],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        { "name": "images", "type": "IMAGE", "link": 19 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "PreviewImage" },
+      "widgets_values": []
+    },
+    {
+      "id": 12,
+      "type": "SaveImage",
+      "pos": [2380, 1030],
+      "size": [320, 60],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        { "name": "images", "type": "IMAGE", "link": 19 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "SaveImage" },
+      "widgets_values": ["artist_blend_xy_plot"]
+    }
+  ],
+  "links": [
+    [1, 1, 1, 5, 0, "CLIP"],
+    [2, 1, 1, 6, 0, "CLIP"],
+    [4, 1, 0, 8, 0, "MODEL"],
+    [5, 1, 2, 9, 1, "VAE"],
+    [6, 2, 0, 3, 0, "STRING"],
+    [7, 3, 0, 4, 0, "STRING"],
+    [8, 4, 0, 5, 1, "STRING"],
+    [9, 4, 1, 6, 1, "STRING"],
+    [10, 5, 0, 8, 5, "CONDITIONING"],
+    [11, 6, 0, 8, 6, "CONDITIONING"],
+    [12, 7, 0, 8, 7, "LATENT"],
+    [13, 8, 0, 9, 0, "LATENT"],
+    [14, 9, 0, 13, 0, "IMAGE"],
+    [15, 3, 1, 10, 1, "INT"],
+    [16, 3, 2, 10, 2, "STRING"],
+    [17, 3, 3, 10, 3, "STRING"],
+    [18, 9, 0, 10, 0, "IMAGE"],
+    [19, 10, 0, 11, 0, "IMAGE"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": { "workflowRendererVersion": "LG" },
+  "version": 0.4
+}
+

@@ -115,6 +115,11 @@ class SimpleChatAnimaPromptXYMatrix:
                 "y_field": (fields, {"default": "environment"}),
                 "y_list": ("STRING", {"multiline": True, "default": "sunset street\nnight city"}),
                 "include_environment_in_positive": ("BOOLEAN", {"default": True}),
+                "auto_y_from_x_when_empty": ("BOOLEAN", {"default": True, "tooltip": "If y_list is empty, reuse x_list (useful for artist x artist matrix)."}),
+                "same_field_behavior": (["override", "combine"], {"default": "combine", "tooltip": "When x_field == y_field (e.g. artist), choose overwrite or combine."}),
+                "pair_join": (["newline", "comma", "space", "custom"], {"default": "newline"}),
+                "custom_join": ("STRING", {"default": "\\n", "tooltip": "Used when pair_join=custom. Use \\n for newline."}),
+                "diagonal_single": ("BOOLEAN", {"default": True, "tooltip": "When X==Y, use single value on diagonal (recommended)."}),
             }
         }
 
@@ -139,6 +144,11 @@ class SimpleChatAnimaPromptXYMatrix:
         y_field: str = "environment",
         y_list: str = "",
         include_environment_in_positive: bool = True,
+        auto_y_from_x_when_empty: bool = True,
+        same_field_behavior: str = "combine",
+        pair_join: str = "newline",
+        custom_join: str = "\\n",
+        diagonal_single: bool = True,
     ):
         raw = _strip_code_fence(json_text) if strip_code_fence else json_text
         base = _try_parse_json(raw) if isinstance(raw, str) else raw
@@ -150,17 +160,44 @@ class SimpleChatAnimaPromptXYMatrix:
         if not xs:
             xs = [""]
         if not ys:
-            ys = [""]
+            ys = xs[:] if auto_y_from_x_when_empty else [""]
 
         x_key = _get_field_key(x_field)
         y_key = _get_field_key(y_field)
 
+        def _join_str() -> str:
+            if pair_join == "comma":
+                return ", "
+            if pair_join == "space":
+                return " "
+            if pair_join == "custom":
+                return (custom_join or "").replace("\\n", "\n")
+            return "\n"  # newline
+
+        def _combine(a: str, b: str) -> str:
+            a = (a or "").strip()
+            b = (b or "").strip()
+            if not a:
+                return b
+            if not b:
+                return a
+            if diagonal_single and a == b:
+                return a
+            return f"{a}{_join_str()}{b}"
+
         def _build_one(xv: str, yv: str) -> str:
             obj = dict(base)
-            if x_key:
-                obj[x_key] = xv
-            if y_key:
-                obj[y_key] = yv
+            if x_key and y_key and x_key == y_key:
+                if same_field_behavior == "combine":
+                    obj[x_key] = _combine(xv, yv)
+                else:
+                    # override: y overwrites x (old behavior)
+                    obj[x_key] = yv if (yv or "").strip() else xv
+            else:
+                if x_key:
+                    obj[x_key] = xv
+                if y_key:
+                    obj[y_key] = yv
 
             # Keep alias fields in sync for neg/negative
             if x_key == "neg":
