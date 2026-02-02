@@ -48,9 +48,12 @@ class SimpleChatXYPlot:
         return {
             "required": {
                 "images": ("IMAGE",),
-                "columns": ("INT", {"default": 4, "min": 1, "max": 64}),
-                "x_labels": ("STRING", {"multiline": True, "default": ""}),
-                "y_labels": ("STRING", {"multiline": True, "default": ""}),
+            },
+            "optional": {
+                # These support both widget input and upstream connection (forceInput)
+                "columns": ("INT", {"default": 4, "min": 1, "max": 64, "forceInput": True}),
+                "x_labels": ("STRING", {"multiline": True, "default": "", "forceInput": True}),
+                "y_labels": ("STRING", {"multiline": True, "default": "", "forceInput": True}),
                 "padding": ("INT", {"default": 8, "min": 0, "max": 256}),
                 "label_padding": ("INT", {"default": 8, "min": 0, "max": 256}),
                 "bg_color": (["black", "white"], {"default": "black"}),

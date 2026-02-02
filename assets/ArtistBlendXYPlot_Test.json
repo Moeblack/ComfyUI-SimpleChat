@@ -2,7 +2,7 @@
   "id": "simplechat-artist-blend-xyplot-test",
   "revision": 0,
   "last_node_id": 13,
-  "last_link_id": 19,
+  "last_link_id": 20,
   "nodes": [
     {
       "id": 1,
@@ -218,7 +218,7 @@
         { "name": "y_labels", "type": "STRING", "link": 17 }
       ],
       "outputs": [
-        { "name": "image", "type": "IMAGE", "links": [19] }
+        { "name": "image", "type": "IMAGE", "links": [19, 20] }
       ],
       "properties": { "aux_id": "Moeblack/ComfyUI-SimpleChat", "Node name for S&R": "SimpleChatXYPlot" },
       "widgets_values": [8, 8, "black", "white", "Artist Blend (X + Y)"]
@@ -247,7 +247,7 @@
       "order": 12,
       "mode": 0,
       "inputs": [
-        { "name": "images", "type": "IMAGE", "link": 19 }
+        { "name": "images", "type": "IMAGE", "link": 20 }
       ],
       "outputs": [],
       "properties": { "Node name for S&R": "SaveImage" },
@@ -272,7 +272,8 @@
     [16, 3, 2, 10, 2, "STRING"],
     [17, 3, 3, 10, 3, "STRING"],
     [18, 9, 0, 10, 0, "IMAGE"],
-    [19, 10, 0, 11, 0, "IMAGE"]
+    [19, 10, 0, 11, 0, "IMAGE"],
+    [20, 10, 0, 12, 0, "IMAGE"]
   ],
   "groups": [],
   "config": {},
