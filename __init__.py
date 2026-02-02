@@ -14,9 +14,16 @@ from .nodes import (
     SimpleChatMustacheVar,
     SimpleChatMustacheRender,
     SimpleChatTextInput,
+    SimpleChatTextList,
     SimpleChatJsonParse,
+    SimpleChatJsonParse16,
+    SimpleChatJsonToVars,
     SimpleChatMarkdownPreview,
     SimpleChatPromptJsonUnpack,
+    SimpleChatAnimaPromptRouter,
+    SimpleChatImageGrid,
+    SimpleChatAnimaPromptXYMatrix,
+    SimpleChatXYPlot,
 )
 
 # Register API routes
@@ -34,9 +41,16 @@ NODE_CLASS_MAPPINGS = {
     "SimpleChatMustacheVar": SimpleChatMustacheVar,
     "SimpleChatMustacheRender": SimpleChatMustacheRender,
     "SimpleChatTextInput": SimpleChatTextInput,
+    "SimpleChatTextList": SimpleChatTextList,
     "SimpleChatJsonParse": SimpleChatJsonParse,
+    "SimpleChatJsonParse16": SimpleChatJsonParse16,
+    "SimpleChatJsonToVars": SimpleChatJsonToVars,
     "SimpleChatMarkdownPreview": SimpleChatMarkdownPreview,
     "SimpleChatPromptJsonUnpack": SimpleChatPromptJsonUnpack,
+    "SimpleChatAnimaPromptRouter": SimpleChatAnimaPromptRouter,
+    "SimpleChatImageGrid": SimpleChatImageGrid,
+    "SimpleChatAnimaPromptXYMatrix": SimpleChatAnimaPromptXYMatrix,
+    "SimpleChatXYPlot": SimpleChatXYPlot,
 }
 
 # Display names for the UI
@@ -50,9 +64,16 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "SimpleChatMustacheVar": "Mustache Var",
     "SimpleChatMustacheRender": "Mustache Render",
     "SimpleChatTextInput": "Text Input",
+    "SimpleChatTextList": "Text List (Batch)",
     "SimpleChatJsonParse": "JSON Parse",
+    "SimpleChatJsonParse16": "JSON Parse (16)",
+    "SimpleChatJsonToVars": "JSON -> Vars (Editable)",
     "SimpleChatMarkdownPreview": "Markdown Preview",
     "SimpleChatPromptJsonUnpack": "Prompt JSON Unpack",
+    "SimpleChatAnimaPromptRouter": "Anima Prompt Router (Editable)",
+    "SimpleChatImageGrid": "Image Grid (Batch)",
+    "SimpleChatAnimaPromptXYMatrix": "Anima XY Matrix (JSON List)",
+    "SimpleChatXYPlot": "XY Plot (Labels)",
 }
 
 # Expose web directory for JS extensions

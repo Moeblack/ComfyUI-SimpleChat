@@ -1,0 +1,287 @@
+{
+  "id": "simplechat-artist-batch-test-grid",
+  "revision": 0,
+  "last_node_id": 13,
+  "last_link_id": 16,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "CheckpointLoaderSimple",
+      "pos": [-980, 120],
+      "size": [380, 105],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        { "name": "MODEL", "type": "MODEL", "links": [3] },
+        { "name": "CLIP", "type": "CLIP", "links": [1, 2] },
+        { "name": "VAE", "type": "VAE", "links": [4] }
+      ],
+      "properties": { "Node name for S&R": "CheckpointLoaderSimple" },
+      "widgets_values": ["YOUR_CHECKPOINT.safetensors"]
+    },
+    {
+      "id": 2,
+      "type": "SimpleChatTextInput",
+      "pos": [-980, 280],
+      "size": [520, 240],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        { "name": "text", "type": "STRING", "links": [5] }
+      ],
+      "properties": { "aux_id": "Moeblack/ComfyUI-SimpleChat", "Node name for S&R": "SimpleChatTextInput" },
+      "widgets_values": [
+        "{\n  \"quality_meta_year_safe\": \"masterpiece, best quality, year 2025, safe\",\n  \"count\": \"1girl\",\n  \"character\": \"dreamlike girl, gentle expression, soft eyes\",\n  \"series\": \"\",\n  \"artist\": \"@ask\",\n  \"style\": \"anime illustration, soft painterly shading\",\n  \"environment\": \"soft bokeh background, warm indoor light\",\n  \"tags\": \"upper body, looking at viewer, delicate hair strands\\nA dreamy and tender mood.\",\n  \"neg\": \"worst quality, low quality, blurry, bad anatomy, bad hands, extra fingers, missing fingers, text, watermark, logo, jpeg artifacts, nsfw, explicit\"\n}\n"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "SimpleChatTextList",
+      "pos": [-980, 560],
+      "size": [360, 230],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        { "name": "item", "type": "STRING", "links": [6] }
+      ],
+      "properties": { "aux_id": "Moeblack/ComfyUI-SimpleChat", "Node name for S&R": "SimpleChatTextList" },
+      "widgets_values": [
+        "@ask\n@artist_a\n@artist_b\n@artist_c\n",
+        "lines"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "SimpleChatAnimaPromptRouter",
+      "pos": [-400, 280],
+      "size": [520, 420],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        { "name": "json_text", "type": "STRING", "link": 5 },
+        { "name": "override_artist", "type": "STRING", "link": 6 }
+      ],
+      "outputs": [
+        { "name": "quality_meta_year_safe", "type": "STRING", "links": null },
+        { "name": "count", "type": "STRING", "links": null },
+        { "name": "character", "type": "STRING", "links": null },
+        { "name": "series", "type": "STRING", "links": null },
+        { "name": "artist", "type": "STRING", "links": null },
+        { "name": "style", "type": "STRING", "links": null },
+        { "name": "environment", "type": "STRING", "links": null },
+        { "name": "tags", "type": "STRING", "links": null },
+        { "name": "neg", "type": "STRING", "links": null },
+        { "name": "positive", "type": "STRING", "links": [7] },
+        { "name": "negative", "type": "STRING", "links": [8] },
+        { "name": "vars", "type": "SIMPLECHAT_VARS", "links": null },
+        { "name": "obj", "type": "SIMPLECHAT_JSON", "links": null },
+        { "name": "json_text", "type": "STRING", "links": null }
+      ],
+      "properties": { "aux_id": "Moeblack/ComfyUI-SimpleChat", "Node name for S&R": "SimpleChatAnimaPromptRouter" },
+      "widgets_values": [
+        "",
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 5,
+      "type": "CLIPTextEncode",
+      "pos": [200, 260],
+      "size": [420, 180],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        { "name": "clip", "type": "CLIP", "link": 1 },
+        { "name": "text", "type": "STRING", "link": 7 }
+      ],
+      "outputs": [
+        { "name": "CONDITIONING", "type": "CONDITIONING", "links": [9] }
+      ],
+      "properties": { "Node name for S&R": "CLIPTextEncode" },
+      "widgets_values": []
+    },
+    {
+      "id": 6,
+      "type": "CLIPTextEncode",
+      "pos": [200, 470],
+      "size": [420, 180],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        { "name": "clip", "type": "CLIP", "link": 2 },
+        { "name": "text", "type": "STRING", "link": 8 }
+      ],
+      "outputs": [
+        { "name": "CONDITIONING", "type": "CONDITIONING", "links": [10] }
+      ],
+      "properties": { "Node name for S&R": "CLIPTextEncode" },
+      "widgets_values": []
+    },
+    {
+      "id": 7,
+      "type": "EmptyLatentImage",
+      "pos": [200, 700],
+      "size": [320, 110],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        { "name": "LATENT", "type": "LATENT", "links": [11] }
+      ],
+      "properties": { "Node name for S&R": "EmptyLatentImage" },
+      "widgets_values": [1024, 1024, 1]
+    },
+    {
+      "id": 8,
+      "type": "KSampler",
+      "pos": [680, 560],
+      "size": [420, 300],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        { "name": "model", "type": "MODEL", "link": 3 },
+        { "name": "positive", "type": "CONDITIONING", "link": 9 },
+        { "name": "negative", "type": "CONDITIONING", "link": 10 },
+        { "name": "latent_image", "type": "LATENT", "link": 11 }
+      ],
+      "outputs": [
+        { "name": "LATENT", "type": "LATENT", "links": [12] }
+      ],
+      "properties": { "Node name for S&R": "KSampler" },
+      "widgets_values": [1234, 30, 4.5, "euler_ancestral", "normal", 1.0]
+    },
+    {
+      "id": 9,
+      "type": "VAEDecode",
+      "pos": [1140, 620],
+      "size": [170, 50],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        { "name": "samples", "type": "LATENT", "link": 12 },
+        { "name": "vae", "type": "VAE", "link": 4 }
+      ],
+      "outputs": [
+        { "name": "IMAGE", "type": "IMAGE", "links": [13, 14] }
+      ],
+      "properties": { "Node name for S&R": "VAEDecode" },
+      "widgets_values": []
+    },
+    {
+      "id": 13,
+      "type": "SaveImage",
+      "pos": [1340, 520],
+      "size": [320, 60],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        { "name": "images", "type": "IMAGE", "link": 13 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "SaveImage" },
+      "widgets_values": ["artist_test_each"]
+    },
+    {
+      "id": 10,
+      "type": "SimpleChatImageGrid",
+      "pos": [1340, 660],
+      "size": [340, 160],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        { "name": "images", "type": "IMAGE", "link": 14 }
+      ],
+      "outputs": [
+        { "name": "image", "type": "IMAGE", "links": [15, 16] }
+      ],
+      "properties": { "aux_id": "Moeblack/ComfyUI-SimpleChat", "Node name for S&R": "SimpleChatImageGrid" },
+      "widgets_values": [4, 8, "black"]
+    },
+    {
+      "id": 11,
+      "type": "PreviewImage",
+      "pos": [1720, 660],
+      "size": [280, 340],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        { "name": "images", "type": "IMAGE", "link": 15 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "PreviewImage" },
+      "widgets_values": []
+    },
+    {
+      "id": 12,
+      "type": "SaveImage",
+      "pos": [1720, 1030],
+      "size": [320, 60],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        { "name": "images", "type": "IMAGE", "link": 16 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "SaveImage" },
+      "widgets_values": ["artist_test_grid"]
+    }
+  ],
+  "links": [
+    [1, 1, 1, 5, 0, "CLIP"],
+    [2, 1, 1, 6, 0, "CLIP"],
+    [3, 1, 0, 8, 0, "MODEL"],
+    [4, 1, 2, 9, 1, "VAE"],
+    [5, 2, 0, 4, 0, "STRING"],
+    [6, 3, 0, 4, 11, "STRING"],
+    [7, 4, 9, 5, 0, "STRING"],
+    [8, 4, 10, 6, 0, "STRING"],
+    [9, 5, 0, 8, 5, "CONDITIONING"],
+    [10, 6, 0, 8, 6, "CONDITIONING"],
+    [11, 7, 0, 8, 7, "LATENT"],
+    [12, 8, 0, 9, 0, "LATENT"],
+    [13, 9, 0, 13, 0, "IMAGE"],
+    [14, 9, 0, 10, 0, "IMAGE"],
+    [15, 10, 0, 11, 0, "IMAGE"],
+    [16, 10, 0, 12, 0, "IMAGE"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": { "workflowRendererVersion": "LG" },
+  "version": 0.4
+}
+

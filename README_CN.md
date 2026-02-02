@@ -7,6 +7,9 @@ ComfyUI 的极简 LLM 聊天节点。轻松连接 OpenAI, Claude, Gemini 以及�
 ![工作流示例](assets/example-workflow.webp)
 
 [查看示例工作流 JSON](assets/SimpleChatExample.json)
+  
+- **画师批量测试（网格）示例工作流**：`assets/ArtistBatchTest_Grid.json`
+- **画师×背景 XY Plot（带标签）示例工作流**：`assets/ArtistXYPlot_Test.json`
 
 ## 特性 (Features)
 
@@ -18,6 +21,11 @@ ComfyUI 的极简 LLM 聊天节点。轻松连接 OpenAI, Claude, Gemini 以及�
 - **Gemini 原生功能**: 专为 Gemini 设计的文生图和图片编辑节点。
 - **模板变量 (Mustache)**: 在 prompt/system 等任意文本里写 `{{变量名}}`，通过节点统一注入替换。
 - **JSON 解析拆字段**: 将 JSON 自动解析并按 path 输出到多个端口（固定 8 路）。
+- **JSON Parse (16)**: 同上，但固定 16 路输出端口（更适合你“分段多、端口多”的场景）。
+- **JSON -> Vars (Editable)**: 任意 JSON 一键转胡子变量（可选扁平化 `a.b.c`），支持 `vars_in`/手动 overrides 覆盖。
+- **Anima Prompt Router（可编辑 + 锁定）**: LLM 输出一个 JSON → 自动拆成分段字段（画师/风格/背景等）→ 支持手动覆盖输入 + 锁定锁存（新 JSON 来了也不改）。
+- **批量测试小工具**: `Text List (Batch)` 生成字符串列表驱动批次跑图；`Image Grid (Batch)` 把批次图片拼成表格网格图。
+- **XY Plot（完整表格）**: `Anima XY Matrix (JSON List)` 生成交叉组合 → `XY Plot (Labels)` 输出带 X/Y 标签的“完整 XY 表格图”。
 - **Markdown 渲染预览**: 将文本以 Markdown 方式弹窗渲染展示（已做净化，避免脚本注入）。
 
 ## Wiki（GitHub 原生）
@@ -108,6 +116,12 @@ git clone https://github.com/Moeblack/ComfyUI-SimpleChat.git
     *   `path1..path8`: 取值路径（支持 `a.b.c` 与 `items[0].name`）
 *   **输出**: `out1..out8` + `obj`（完整解析后的对象）
 
+### 7.0 JSON Parse (16)
+如果你希望“默认更多端口”（例如 16 段），用这个节点。
+
+*   **节点**: `JSON Parse (16)`
+*   **输入/输出**：和 `JSON Parse` 一样，只是 `path1..path16` / `out1..out16`
+
 ### 7.1 Prompt JSON 拆包（强烈推荐）
 如果你的 LLM 输出遵循固定 JSON 格式（positive/negative/width/height/steps/cfg/sampler/seed/notes），推荐用这个节点“一键拆包”，并且 **width/height/steps/cfg/seed/sampler 都是带类型输出**，可直接接到 ComfyUI 的对应输入口（不用手动填 path，也不用字符串转数字）。
 
@@ -121,13 +135,55 @@ git clone https://github.com/Moeblack/ComfyUI-SimpleChat.git
     *   `notes`（STRING）
     *   `vars`（SIMPLECHAT_VARS：自动把这些字段映射成 `{{positive}}`/`{{width}}` 等胡子变量，另含中文别名）
 
+### 7.2 Anima Prompt Router（可编辑 + 锁定）
+如果你希望把提示词拆成「画师 / 风格 / 背景 / 通用标签 / 负面」等分段来管理，但又不想每次都复制粘贴到一堆节点，这个节点就是用来**自动拆分 + 可手动改 + 可锁定**的。
+
+*   **节点**: `Anima Prompt Router (Editable)`
+*   **输入**:
+    *   `json_text`: LLM 输出的 JSON（支持 ```json ... ``` 代码块）
+    *   `override_*`: 你想主动修改的字段（填了就覆盖 JSON）
+    *   `lock_*`: 锁定某字段（锁定后，新 JSON 来了也不会改，会保持上一次值；你仍可用 override 主动改）
+    *   `reset_latches`: 清空所有锁存值
+*   **输出**:
+    *   分段字段：`quality_meta_year_safe / count / character / series / artist / style / environment / tags / neg`
+    *   自动重组：`positive / negative`
+    *   `vars`: 可直接用于 Mustache（含 `{{anima.artist}}`、`{{画师}}` 等别名）
+    *   `json_text`: 输出“修改后的 JSON”（可再接到 `Prompt JSON Unpack` 继续拆参数）
+
+### 7.3 JSON -> Vars (Editable)（任意 JSON 变胡子变量）
+当你已经有一个 JSON（不一定是 Anima schema），但想直接在别的节点里用 `{{key}}` 引用它：
+
+*   **节点**: `JSON -> Vars (Editable)`
+*   **输入**:
+    *   `json_text`: 任意 JSON
+    *   `flatten_keys`: 是否把嵌套字段展开为 `a.b.c` / `arr[0]` 这种键
+    *   `prefix`: 可选前缀，例如填 `anima` 会同时生成 `anima.xxx`
+    *   `overrides`: 允许写 `key=value` 覆盖（支持多行）
+    *   `vars_in`: 可选，允许你把外部 vars 合并进来
+*   **输出**: `vars`（可直接接到 SimpleChat 节点的 `vars` 输入）
+
+### 9.0 XY Plot：画师 × 背景（完整表格）
+如果你要“真正的 XY Plot（有行列标签）”，推荐：
+
+1) `Anima XY Matrix (JSON List)`：输入 base JSON + X 列表（画师）+ Y 列表（背景/风格等）→ 输出 JSON 列表 + `columns/x_labels/y_labels`
+2) 下游照常跑图（`Prompt JSON Unpack` → CLIP/KSampler → VAE Decode）
+3) `XY Plot (Labels)`：把 batch 图 + `columns/x_labels/y_labels` 输入，输出一张带标签的完整 XY 表格图
+
 ### 8. Markdown 渲染预览 (Markdown Preview)
 把文本以 Markdown 渲染的方式展示（弹窗），适合预览 LLM 的结构化输出/说明文档。
 
 *   **节点**: `Markdown Preview`
 *   **用法**: 把任意文本输出接到 `text`，执行后自动弹窗渲染。
 
-### 9. Anima 提示词模板（文档）
+### 9. 批量测试：画师表格（Text List + Router + Image Grid）
+想做“尽可能多画师的对比表格”，推荐这条最短链路（不依赖臃肿大包）：
+
+1) `Text List (Batch)`：把画师列表按行贴进去（每行一个 `@artist`）
+2) `Anima Prompt Router (Editable)`：把 `Text List.item` 接到 `override_artist`，并勾选 `lock_*` 把主体/风格/背景等固定住
+3) 把 Router 的 `positive/negative` 接到你的出图工作流（CLIP/KSampler）
+4) 最后把出图得到的 batch 接到 `Image Grid (Batch)` 拼成表格图
+
+### 10. Anima 提示词模板（文档）
 如果你用 SimpleChat 让 LLM 帮你写 Anima 的提示词，推荐直接用这份 System Prompt：
 
 *   `docs/anima_prompt.md`
