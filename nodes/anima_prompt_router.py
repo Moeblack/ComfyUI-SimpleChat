@@ -132,6 +132,10 @@ class SimpleChatAnimaPromptRouter:
                 "override_environment": ("STRING", {"multiline": True, "default": ""}),
                 "override_tags": ("STRING", {"multiline": True, "default": ""}),
                 "override_neg": ("STRING", {"multiline": True, "default": ""}),
+
+                # Extra scheme fields (added later; appended for workflow compatibility)
+                "lock_appearance": ("BOOLEAN", {"default": False}),
+                "override_appearance": ("STRING", {"multiline": True, "default": ""}),
             },
         }
 
@@ -150,6 +154,7 @@ class SimpleChatAnimaPromptRouter:
         "SIMPLECHAT_VARS",  # vars
         "SIMPLECHAT_JSON",  # obj
         "STRING",  # json_text_out
+        "STRING",  # appearance
     )
     RETURN_NAMES = (
         "quality_meta_year_safe",
@@ -166,6 +171,7 @@ class SimpleChatAnimaPromptRouter:
         "vars",
         "obj",
         "json_text",
+        "appearance",
     )
     FUNCTION = "route"
     CATEGORY = "SimpleChat/Utils"
@@ -231,6 +237,8 @@ class SimpleChatAnimaPromptRouter:
         override_environment: str = "",
         override_tags: str = "",
         override_neg: str = "",
+        lock_appearance: bool = False,
+        override_appearance: str = "",
     ):
         if reset_latches:
             self._latched = {}
@@ -250,6 +258,13 @@ class SimpleChatAnimaPromptRouter:
         env_json = _first_nonempty(data.get("environment"), data.get("env"), data.get("background"), data.get("scene"))
         tags_json = _first_nonempty(data.get("tags"))
         neg_json = _first_nonempty(data.get("neg"), data.get("negative"))
+        appearance_json = _first_nonempty(
+            data.get("appearance"),
+            data.get("Appearance"),
+            data.get("appearance_tags"),
+            data.get("features"),
+            data.get("look"),
+        )
 
         # Resolve final values (override + lock/latch)
         q = self._resolve_field(key="quality_meta_year_safe", json_value=q_json, lock=lock_quality, override=override_quality)
@@ -261,9 +276,10 @@ class SimpleChatAnimaPromptRouter:
         environment = self._resolve_field(key="environment", json_value=env_json, lock=lock_environment, override=override_environment)
         tags = self._resolve_field(key="tags", json_value=tags_json, lock=lock_tags, override=override_tags)
         neg = self._resolve_field(key="neg", json_value=neg_json, lock=lock_neg, override=override_neg)
+        appearance = self._resolve_field(key="appearance", json_value=appearance_json, lock=lock_appearance, override=override_appearance)
 
         # Always rebuild positive/negative from final parts (keeps consistency after edits)
-        positive = _join_pieces(q, count, character, series, artist, style, environment, tags)
+        positive = _join_pieces(q, count, character, appearance, series, artist, style, environment, tags)
         # In Anima-parted schema, negative is expected to mirror `neg`.
         negative = neg
 
@@ -278,6 +294,8 @@ class SimpleChatAnimaPromptRouter:
             "environment": environment,
             "tags": tags,
             "neg": neg,
+            "appearance": appearance,
+            "Appearance": appearance,
             "positive": positive,
             "negative": negative,
             "anima.quality_meta_year_safe": q,
@@ -289,6 +307,8 @@ class SimpleChatAnimaPromptRouter:
             "anima.environment": environment,
             "anima.tags": tags,
             "anima.neg": neg,
+            "anima.appearance": appearance,
+            "anima.Appearance": appearance,
             "anima.positive": positive,
             "anima.negative": negative,
             # Chinese aliases (optional convenience)
@@ -302,6 +322,7 @@ class SimpleChatAnimaPromptRouter:
             "质量": q,
             "人数": count,
             "作品": series,
+            "外观": appearance,
             "anima.正面提示词": positive,
             "anima.负面提示词": negative,
             "anima.背景": environment,
@@ -312,7 +333,26 @@ class SimpleChatAnimaPromptRouter:
             "anima.质量": q,
             "anima.人数": count,
             "anima.作品": series,
+            "anima.外观": appearance,
         }
+
+        # Expose any extra top-level JSON keys as Mustache vars (future-proof for new schemes)
+        for k, v in data.items():
+            if not isinstance(k, str) or not k:
+                continue
+            if k in vars_dict:
+                continue
+            if k.startswith("anima."):
+                continue
+
+            if v is None or isinstance(v, (str, int, float, bool)):
+                vars_dict[k] = "" if v is None else v
+            else:
+                vars_dict[k] = _as_str(v, "")
+
+            prefixed = f"anima.{k}"
+            if prefixed not in vars_dict:
+                vars_dict[prefixed] = vars_dict[k]
 
         # Produce updated JSON object (keep original keys, but ensure these fields are consistent)
         out_obj = dict(data)
@@ -325,6 +365,10 @@ class SimpleChatAnimaPromptRouter:
         out_obj["environment"] = environment
         out_obj["tags"] = tags
         out_obj["neg"] = neg
+        if appearance.strip() or ("appearance" in out_obj) or ("Appearance" in out_obj):
+            out_obj["appearance"] = appearance
+            if "Appearance" in out_obj:
+                out_obj["Appearance"] = appearance
         out_obj["positive"] = positive
         out_obj["negative"] = negative
 
@@ -345,5 +389,6 @@ class SimpleChatAnimaPromptRouter:
             vars_dict,
             out_obj,
             json_text_out,
+            appearance,
         )
 
